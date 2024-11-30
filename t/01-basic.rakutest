@@ -1,0 +1,6 @@
+use Test;
+use SmallComponentTest;
+
+pass "replace me";
+
+done-testing;

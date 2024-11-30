@@ -1,0 +1,27 @@
+{
+  "auth": "zef:FCO",
+  "authors": [
+    "Fernando Corrêa de Oliveira"
+  ],
+  "build-depends": [
+  ],
+  "depends": [
+    "Red",
+    "cro"
+  ],
+  "description": "blah blah blah",
+  "license": "Artistic-2.0",
+  "name": "SmallComponentTest",
+  "perl": "6.d",
+  "provides": {
+    "SmallComponentTest": "lib/SmallComponentTest.rakumod"
+  },
+  "resources": [
+  ],
+  "source-url": "",
+  "tags": [
+  ],
+  "test-depends": [
+  ],
+  "version": "0.0.1"
+}
