@@ -1,5 +1,35 @@
+use Cro::HTTP::Router;
+use Red::Model;
 unit class SmallComponentTest;
 
+sub add-component-route(Red::Model:U $component) is export {
+	my $component-name = $component.^name.lc;
+	get    -> Str $ where { $_ eq $component-name }, $id {
+		with $component.^load: $id {
+			content 'text/html', .Str
+		}
+	}
+	delete -> Str $ where { $_ eq $component-name }, $id {
+		with $component.^load: $id {
+			.^delete;
+			content 'text/html', ""
+		}
+	}
+	post   -> Str $ where { $_ eq $component-name } {
+		request-body -> $values {
+			my %values := $values.pairs.Map;
+			with $component.^create: |%values {
+				redirect "/$component-name/{ .id }", :see-other
+			}
+		}
+	}
+	get    -> Str $ where { $_ eq $component-name }, $id, Str $method where { $component.^can: $method } {
+		with $component.^load: $id {
+			."$method"();
+		}
+		redirect "/$component-name/{ $id }", :see-other
+	}
+}
 
 =begin pod
 

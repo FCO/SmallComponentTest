@@ -1,8 +1,10 @@
 #!/usr/bin/env raku
 
+use lib "lib";
 use Red;
 use Cro::HTTP::Router;
 use Cro::HTTP::Server;
+use SmallComponentTest;
 
 model Todo {
 	has UInt $.id                         is serial;
@@ -13,10 +15,6 @@ model Todo {
 		$!done = $.not;
 		$.^save
 	}
-
-	method get(UInt() $id)       { $.^load: $id }
-	method delete                { $.^delete }
-	method post(% (Str :$value)) { $.^create: :$value }
 
 	method Str {
 		qq:to/END/;
@@ -58,39 +56,16 @@ class TodoList {
 			<table>
 				{ Todo.^all.join: "\n" }
 			</table>
-			<form hx-post="/todo" hx-target="table" hx-swap="beforeend">
+			<form
+				hx-post="/todo"
+				hx-target="table"
+				hx-swap="beforeend"
+				hx-on::after-request="this.reset()"
+			>
 				<input name="value">
 				<button type=submit>+</button>
 			</form>
 		END
-	}
-}
-
-sub add-component-route(Any:U $component) {
-	my $component-name = $component.^name.lc;
-	get    -> Str $ where { $_ eq $component-name }, $id {
-		with $component.get: $id {
-			content 'text/html', .Str
-		}
-	}
-	delete -> Str $ where { $_ eq $component-name }, $id {
-		with $component.get: $id {
-			.^delete;
-			content 'text/html', ""
-		}
-	}
-	post   -> Str $ where { $_ eq $component-name } {
-		request-body -> |c {
-			with $component.post: |c {
-				redirect "/$component-name/{ .id }", :see-other
-			}
-		}
-	}
-	get    -> Str $ where { $_ eq $component-name }, $id, Str $method where { Todo.^can: $method } {
-		with $component.get: $id {
-			."$method"();
-		}
-		redirect "/$component-name/{ $id }", :see-other
 	}
 }
 
